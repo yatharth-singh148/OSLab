@@ -37,8 +37,8 @@ void priorityScheduling(struct Process p[], int n) {
         currentTime++;
         if (p[idx].remainingTime == 0) {
             completed++;
-           /* p[idx].completionTime = currentTime;
-            p[idx].turnaroundTime = p[idx].completionTime - p[idx].arrivalTime; */
+            p[idx].completionTime = currentTime;
+            p[idx].turnaroundTime = p[idx].completionTime - p[idx].arrivalTime;
             p[idx].waitingTime = p[idx].turnaroundTime - p[idx].burstTime;
 
             totalWaitingTime += p[idx].waitingTime;
