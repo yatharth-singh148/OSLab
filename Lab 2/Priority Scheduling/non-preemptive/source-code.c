@@ -1,14 +1,11 @@
-//INCOMPLETE
-
 #include <stdio.h>
-
+//non-preemptive
 void priorityScheduling(int n, int at[], int bt[], int pr[], int ct[], int tat[], int wt[], int rt[]) {
     int completed = 0, time = 0, min_priority, highest_priority;
     int flag[n];
     for (int i = 0; i < n; i++) {
         flag[i] = 0;
     }
-
     while (completed < n) {
         min_priority = 9999;
         highest_priority = -1;
@@ -27,9 +24,8 @@ void priorityScheduling(int n, int at[], int bt[], int pr[], int ct[], int tat[]
         ct[highest_priority] = time;
         tat[highest_priority] = ct[highest_priority] - at[highest_priority];
         wt[highest_priority] = tat[highest_priority] - bt[highest_priority];
-        //rt[highest_priority] = wt[highest_priority];
-        
-        //completed++;
+        rt[highest_priority] = wt[highest_priority];
+        completed++;
     }
 }
 
@@ -40,11 +36,10 @@ void displayTable(int n, int at[], int bt[], int pr[], int ct[], int tat[], int 
     }
 }
 
-/* int main() {
+int main() {
     int n;
     printf("Enter number of processes: ");
     scanf("%d", &n);
-
     int at[n], bt[n], pr[n], ct[n], tat[n], wt[n], rt[n];
     printf("Enter Arrival Time, Burst Time, and Priority for each process:\n");
     for (int i = 0; i < n; i++) {
@@ -57,6 +52,5 @@ void displayTable(int n, int at[], int bt[], int pr[], int ct[], int tat[], int 
     }
     priorityScheduling(n, at, bt, pr, ct, tat, wt, rt);
     displayTable(n, at, bt, pr, ct, tat, wt, rt);
-
     return 0;
-} */
+}
