@@ -6,7 +6,7 @@ struct Process {
 };
 int findHighestPriority(struct Process p[], int n, int currentTime) {
     int highest = -1;
-    int highestPriority = 1e9;  // Start with a very low priority (high number)
+    int highestPriority = 1e9;
     
     for (int i = 0; i < n; i++) {
         if (p[i].arrivalTime <= currentTime && p[i].remainingTime > 0) {
@@ -29,16 +29,16 @@ void priorityScheduling(struct Process p[], int n) {
         int idx = findHighestPriority(p, n, currentTime);
 
         if (idx == -1) {
-            currentTime++; // CPU idle, move time forward
+            currentTime++;
             continue;
         }
 
-        p[idx].remainingTime--;  // Process runs for 1 unit of time
+        p[idx].remainingTime--;
         currentTime++;
         if (p[idx].remainingTime == 0) {
             completed++;
-            p[idx].completionTime = currentTime;
-            p[idx].turnaroundTime = p[idx].completionTime - p[idx].arrivalTime;
+           /* p[idx].completionTime = currentTime;
+            p[idx].turnaroundTime = p[idx].completionTime - p[idx].arrivalTime; */
             p[idx].waitingTime = p[idx].turnaroundTime - p[idx].burstTime;
 
             totalWaitingTime += p[idx].waitingTime;
@@ -54,12 +54,10 @@ void priorityScheduling(struct Process p[], int n) {
     printf("\nAverage Waiting Time: %.2f", totalWaitingTime / n);
     printf("\nAverage Turnaround Time: %.2f\n", totalTurnaroundTime / n);
 }
-
 int main() {
     int n;
     printf("Enter number of processes: ");
-    scanf("%d", &n);
-
+    scanf("%d",&n);
     struct Process p[n];
 
     printf("Enter Arrival Time, Burst Time, and Priority (lower number = higher priority) for each process:\n");
@@ -68,8 +66,6 @@ int main() {
         printf("Process %d: ", p[i].id);
         scanf("%d %d %d", &p[i].arrivalTime, &p[i].burstTime, &p[i].priority);
     }
-
     priorityScheduling(p, n);
-
     return 0;
 }
