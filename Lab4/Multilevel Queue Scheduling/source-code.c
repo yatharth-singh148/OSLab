@@ -1,112 +1,99 @@
 #include <stdio.h>
-#include <stdlib.h>
-#define MAX 100
-typedef struct Process {
-    int pid;
-    int burst_time;
-    int arrival_time;
-    int remaining_time;
-    int completed;
+#define TIME_QUANTUM 2
+typedef struct {
+    int pid, burst_time, arrival_time, queue;
+    int waiting_time, turnaround_time, response_time, remaining_time;
 } Process;
-
-Process rr1[MAX], rr2[MAX], fcfs[MAX];
-int rr1_count = 0, rr2_count = 0, fcfs_count = 0;
-void add_fcfs(Process p) {
-    fcfs[fcfs_count++] = p;
+void sort_by_arrival(Process p[], int n) {
+    Process temp;
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = i + 1; j < n; j++) {
+            if (p[i].arrival_time > p[j].arrival_time) {
+                temp = p[i];
+                p[i] = p[j];
+                p[j] = temp;
+            }
+        }
+    }
 }
-void add_rr1(Process p) {
-    rr1[rr1_count++] = p;
-}
-void add_rr2(Process p) {
-    rr2[rr2_count++] = p;
-}
-void round_robin(Process queue[], int n, int quantum) {
-    int time = 0;
-    int i, all_done;
-
-    while (1) {
-        all_done = 1;
-
+void round_robin(Process p[], int n, int *time) {
+    int done, i;
+    do {
+        done = 1;
         for (i = 0; i < n; i++) {
-            if (queue[i].completed == 0) {
-                all_done = 0;
-                if (queue[i].remaining_time > quantum) {
-                    queue[i].remaining_time -= quantum;
-                    time += quantum;
-                    printf("Time %d: Process %d executed for %d time units\n", time, queue[i].pid, quantum);
+            if (p[i].remaining_time > 0) {
+                done = 0;
+                if (p[i].remaining_time > TIME_QUANTUM) {
+                    *time += TIME_QUANTUM;
+                    p[i].remaining_time -= TIME_QUANTUM;
                 } else {
-                    time += queue[i].remaining_time;
-                    printf("Time %d: Process %d executed for %d time units and completed\n", time, queue[i].pid, queue[i].remaining_time);
-                    queue[i].remaining_time = 0;
-                    queue[i].completed = 1;
+                    *time += p[i].remaining_time;
+                    p[i].waiting_time = *time - p[i].arrival_time - p[i].burst_time;
+                    p[i].turnaround_time = p[i].waiting_time + p[i].burst_time;
+                    p[i].response_time = p[i].waiting_time;
+                    p[i].remaining_time = 0;
                 }
             }
         }
-        if (all_done == 1) {
-            break;
-        }
+    } while (!done);
+}
+void fcfs(Process p[], int n, int *time) {
+    for (int i = 0; i < n; i++) {
+        if (*time < p[i].arrival_time)
+            *time = p[i].arrival_time;
+        p[i].waiting_time = *time - p[i].arrival_time;
+        p[i].turnaround_time = p[i].waiting_time + p[i].burst_time;
+        p[i].response_time = p[i].waiting_time;
+        *time += p[i].burst_time;
     }
 }
-void Fcfs() {
-    int time = 0;
-    int i;
-
-    for (i = 0; i < fcfs_count; i++) {
-        time += fcfs[i].burst_time;
-        printf("Time %d: Process %d executed for %d time units (FCFS)\n", time - fcfs[i].burst_time, fcfs[i].pid, fcfs[i].burst_time);
-    }
-}
-
 int main() {
-    int quantum_rr1, quantum_rr2;
-    int num_processes;
-    printf("Enter time quantum for RR1 queue: ");
-    scanf("%d", &quantum_rr1);
-
-    printf("Enter time quantum for RR2 queue: ");
-    scanf("%d", &quantum_rr2);
+    int n, i, time = 0;
     printf("Enter number of processes: ");
-    scanf("%d", &num_processes);
-    for (int i = 0; i < num_processes; i++) {
-        Process p;
-        printf("\nEnter details for Process %d\n", i + 1);
-        printf("Enter Process ID: ");
-        scanf("%d", &p.pid);
-        printf("Enter Burst Time: ");
-        scanf("%d", &p.burst_time);
-        printf("Enter Arrival Time (for FCFS): ");
-        scanf("%d", &p.arrival_time);
-        if (i % 2 == 0) {
-            add_rr1(p);
-        } else if (i % 3 == 0) {
-            add_rr2(p);
-        } else {
-            add_fcfs(p);
-        }
-    }
-    printf("\nProcesses in RR1 queue:\n");
-    for (int i = 0; i < rr1_count; i++) {
-        printf("Process %d, Burst Time: %d\n", rr1[i].pid, rr1[i].burst_time);
-        rr1[i].remaining_time = rr1[i].burst_time;
-    }
+    scanf("%d", &n);
 
-    printf("\nProcesses in RR2 queue:\n");
-    for (int i = 0; i < rr2_count; i++) {
-        printf("Process %d, Burst Time: %d\n", rr2[i].pid, rr2[i].burst_time);
-        rr2[i].remaining_time = rr2[i].burst_time;
+    Process p[n], system_processes[n], user_processes[n];
+    int sys_count = 0, user_count = 0;
+
+    for (i = 0; i < n; i++) {
+        printf("Enter Burst Time, Arrival Time and Queue of P%d: ", i + 1);
+        p[i].pid = i + 1;
+        scanf("%d %d %d", &p[i].burst_time, &p[i].arrival_time, &p[i].queue);
+        p[i].remaining_time = p[i].burst_time;
+
+        if (p[i].queue == 0)
+            system_processes[sys_count++] = p[i];
+        else
+            user_processes[user_count++] = p[i];
     }
+    sort_by_arrival(system_processes, sys_count);
+    sort_by_arrival(user_processes, user_count);
+    printf("\nQueue 1 is System Process\nQueue 2 is User Process\n");
+    round_robin(system_processes, sys_count, &time);
+    fcfs(user_processes, user_count, &time);
+    Process final_list[n];
+    int index = 0;
+    for (i = 0; i < sys_count; i++)
+        final_list[index++] = system_processes[i];
+    for (i = 0; i < user_count; i++)
+        final_list[index++] = user_processes[i];
 
-    printf("\nProcesses in FCFS queue:\n");
-    for (int i = 0; i < fcfs_count; i++) {
-        printf("Process %d, Burst Time: %d\n", fcfs[i].pid, fcfs[i].burst_time);
+    printf("\nProcess\tWaiting Time\tTurn Around Time\tResponse Time\n");
+    float avg_wt = 0, avg_tat = 0, avg_rt = 0;
+
+    for (i = 0; i < n; i++) {
+        printf("%d\t%d\t\t%d\t\t\t%d\n", final_list[i].pid, final_list[i].waiting_time, final_list[i].turnaround_time, final_list[i].response_time);
+        avg_wt += final_list[i].waiting_time;
+        avg_tat += final_list[i].turnaround_time;
+        avg_rt += final_list[i].response_time;
     }
-    printf("\nRound Robin Scheduling (Queue 1):\n");
-    round_robin(rr1, rr1_count, quantum_rr1);
-
-    printf("\nRound Robin Scheduling (Queue 2):\n");
-    round_robin(rr2, rr2_count, quantum_rr2);
-    printf("\nFCFS Scheduling:\n");
-    Fcfs();
-
+    avg_wt /= n;
+    avg_tat /= n;
+    avg_rt /= n;
+    float throughput = (float)n / time;
+    printf("\nAverage Waiting Time: %.2f", avg_wt);
+    printf("\nAverage Turn Around Time: %.2f", avg_tat);
+    printf("\nAverage Response Time: %.2f", avg_rt);
+    printf("\nThroughput: %.2f", throughput);
     return 0;
 }
