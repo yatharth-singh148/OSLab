@@ -23,10 +23,10 @@ void add_rr2(Process p) {
 void round_robin(Process queue[], int n, int quantum) {
     int time = 0;
     int i, all_done;
-    
+
     while (1) {
         all_done = 1;
-        
+
         for (i = 0; i < n; i++) {
             if (queue[i].completed == 0) {
                 all_done = 0;
@@ -47,10 +47,10 @@ void round_robin(Process queue[], int n, int quantum) {
         }
     }
 }
-void fcfs() {
+void Fcfs() {
     int time = 0;
     int i;
-    
+
     for (i = 0; i < fcfs_count; i++) {
         time += fcfs[i].burst_time;
         printf("Time %d: Process %d executed for %d time units (FCFS)\n", time - fcfs[i].burst_time, fcfs[i].pid, fcfs[i].burst_time);
@@ -62,7 +62,7 @@ int main() {
     int num_processes;
     printf("Enter time quantum for RR1 queue: ");
     scanf("%d", &quantum_rr1);
-    
+
     printf("Enter time quantum for RR2 queue: ");
     scanf("%d", &quantum_rr2);
     printf("Enter number of processes: ");
@@ -102,11 +102,11 @@ int main() {
     }
     printf("\nRound Robin Scheduling (Queue 1):\n");
     round_robin(rr1, rr1_count, quantum_rr1);
-    
+
     printf("\nRound Robin Scheduling (Queue 2):\n");
     round_robin(rr2, rr2_count, quantum_rr2);
     printf("\nFCFS Scheduling:\n");
-    fcfs();
-    
+    Fcfs();
+
     return 0;
 }
