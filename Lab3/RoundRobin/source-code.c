@@ -5,7 +5,8 @@ void findWaitingTime(int processes[], int n, int bt[], int wt[], int quantum) {
     int rem_bt[n];
     for (int i = 0; i < n; i++) {
         rem_bt[i] = bt[i];
-        //wt[i] = 0;
+        wt[i] = 0;
+        //wt++;
     }
     int t = 0;
     while (1) {
@@ -16,7 +17,8 @@ void findWaitingTime(int processes[], int n, int bt[], int wt[], int quantum) {
                 done = 0;
                 if (rem_bt[i] > quantum) {
                     rem_bt[i] -= quantum;
-                    //t += quantum;
+                    //++quantum;
+                    t += quantum;
                 } else {
                     t += rem_bt[i];
                     wt[i] = t - bt[i];
@@ -24,7 +26,7 @@ void findWaitingTime(int processes[], int n, int bt[], int wt[], int quantum) {
                 }
             }
         }
-        //if (done) break;
+        if (done) break;
     }
 }
 
