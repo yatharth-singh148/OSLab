@@ -1,3 +1,5 @@
+//PTHRED AND SEMAPHORE LIBRARY ONLY WORK IN CODEBLOCKS, NOT VSC
+
 #include <pthread.h>
 #include <semaphore.h>
 #include <stdio.h>
