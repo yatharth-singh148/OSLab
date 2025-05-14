@@ -112,6 +112,7 @@ int main() {
     printf("1. Best Fit\n");
     printf("2. First Fit\n");
     printf("3. Worst Fit\n");
+    printf("[ANY KEY]. Exit\n");
     printf("Enter your choice: ");
     scanf("%d", &choice);
 
@@ -131,7 +132,8 @@ int main() {
             worstFit(blocks, n_blocks, files, n_files);
             break;
         default:
-            printf("Invalid choice.\n");
+        printf("Closing...");
+            return 0;
     } }
 
     return 0;
