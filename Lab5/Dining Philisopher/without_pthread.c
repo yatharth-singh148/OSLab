@@ -1,56 +1,45 @@
 #include <stdio.h>
+#include <unistd.h>
 
-#define N 5  // Number of philosophers
-#define THINKING 0
-#define HUNGRY 1
-#define EATING 2
+#define N 3  // Number of philosophers
 
-const char* stateNames[] = {"Thinking", "Hungry", "Eating"};
+int forks[N] = {1, 1, 1};  // 1 means fork is available
 
-int state[N];  // State of each philosopher
-
-int left(int i) {
-    return (i + N - 1) % N;
-}
-
-int right(int i) {
-    return (i + 1) % N;
-}
-
-void printStates(int round) {
-    printf("\nRound %d:\n", round);
-    for (int i = 0; i < N; i++) {
-        printf("Philosopher %d is %s\n", i + 1, stateNames[state[i]]);
+void pick_up_forks(int id) {
+    if (forks[id] && forks[(id + 1) % N]) {
+        forks[id] = 0;
+        forks[(id + 1) % N] = 0;
+        printf("Philosopher %d picked up forks %d and %d.\n", id, id, (id + 1) % N);
+    } else {
+        printf("Philosopher %d is waiting for forks.\n", id);
     }
 }
 
-void simulateDining(int rounds) {
-    // Initialize all philosophers to THINKING
-    for (int i = 0; i < N; i++) {
-        state[i] = THINKING;
-    }
+void put_down_forks(int id) {
+    forks[id] = 1;
+    forks[(id + 1) % N] = 1;
+    printf("Philosopher %d put down forks %d and %d.\n", id, id, (id + 1) % N);
+}
 
-    for (int r = 1; r <= rounds; r++) {
-        for (int i = 0; i < N; i++) {
-            if (state[i] == THINKING) {
-                state[i] = HUNGRY;
-            } else if (state[i] == HUNGRY) {
-                if (state[left(i)] != EATING && state[right(i)] != EATING) {
-                    state[i] = EATING;
-                }
-            } else if (state[i] == EATING) {
-                state[i] = THINKING;
-            }
-        }
-        printStates(r);
+void simulate_philosopher(int id) {
+    printf("Philosopher %d is thinking...\n", id);
+    sleep(1);
+
+    pick_up_forks(id);
+
+    if (forks[id] == 0 && forks[(id + 1) % N] == 0) {
+        printf("Philosopher %d is eating...\n", id);
+        sleep(2);
+        put_down_forks(id);
     }
+    sleep(1);
 }
 
 int main() {
-    int rounds;
-    printf("Enter number of simulation rounds: ");
-    scanf("%d", &rounds);
-
-    simulateDining(rounds);
+    while (1) {
+        for (int i = 0; i < N; i++) {
+            simulate_philosopher(i);
+        }
+    }
     return 0;
 }
